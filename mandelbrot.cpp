@@ -28,17 +28,25 @@ void mandelbrot(long double threshold, unsigned long long int maxIterations, com
         output[0] = iterations(maxIterations, center, threshold);
     } else {
         unsigned long long int length = 2 * resolution + 1;
-        unsigned long long int* image = new unsigned long long int [length * length];
         
         long double unit = (long double) scale / (long double) resolution;
-        
-        *output = *image;
 
         long double iter_real = real(center) - scale;
         long double iter_imag = imag(center) + scale;
     
         long double *iter_reals = new long double[length];
+        if (iter_reals == NULL) {
+            delete[] iter_reals;
+            output == NULL;
+            return;
+        }
         long double *iter_imags = new long double[length];
+        if (iter_imags == NULL) {
+            delete[] iter_reals;
+            delete[] iter_imags;
+            output == NULL;
+            return;
+        }
 
         for (unsigned long long int i = 0; i < length; i++) {
             iter_imags[i] = iter_imag;
@@ -54,5 +62,8 @@ void mandelbrot(long double threshold, unsigned long long int maxIterations, com
         for (unsigned long long int i = 0; i < length * length; i++) {
             output[i] = iterations(maxIterations, complex<long double>(iter_reals[i % length], iter_imags[i / length]), threshold);
         }
+
+        delete[] iter_reals;
+        delete[] iter_imags;
     }
 }

@@ -22,6 +22,12 @@ uint8_t* colorMapLoader(char* file, int* colorCount) {
     *colorCount = size;
 
     uint8_t *arr = new uint8_t[size * 3];
+    
+    if (arr == NULL) {
+        fclose(ptr);
+        return arr;
+    }
+
     for (int i = 0; i < size; i++) {
         fscanf(ptr, "%hhu %hhu %hhu", &arr[(i * 3)], &arr[(i * 3) + 1], &arr[(i * 3) + 2]);
     }

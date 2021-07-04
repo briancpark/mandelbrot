@@ -35,30 +35,71 @@ int main(int argc, char* argv[]) {
     char* colorFile = argv[10];
 
     int* colorCount = (int*) malloc(sizeof(int));
+    if (colorCount == NULL) {
+        cout << "Not enough memory to be allocated" << endl;
+        return -1;
+    }
 
     uint8_t* colorMap = colorMapLoader(colorFile, colorCount);
+    if (colorMap == NULL) {
+        cout << "Not enough memory to be allocated" << endl;
+        free(colorCount);
+        return -1;
+    }
 
     long double scale = initialScale;
 
     //Writing to image
     unsigned long long int size = 2 * resolution + 1;
     unsigned long long int canvas = size * size;
-    uint8_t* color;
 
     for (unsigned long long int frame = 0; frame < frames; frame++) {
         char* file = (char*) malloc((sizeof(char)) * (20 + (strlen(outputDirectory))));
+
+        if (file == NULL) {
+            cout << "Not enough memory to be allocated." << endl;
+            free(colorCount);
+            delete[] colorMap;
+            return -1;
+        }
+
         sprintf(file, "%s/frame%05llu.ppm", outputDirectory, frame);
         FILE *f = fopen(file, "w+");
 
+        if (f == NULL) {
+            cout << "File not found." << endl;
+            free(colorCount);
+            delete[] colorMap;
+            free(file);
+            return -1;
+        }
+
         unsigned long long int* output = new unsigned long long int [((2 * resolution) + 1) * ((2 * resolution) + 1)];
+        if (output == NULL) {
+            cout << "Array could not be created." << endl;
+            free(colorCount);
+            delete[] colorMap;
+            free(file);
+            fclose(f);
+            return -1;
+        }
         long double scale = (long double) exp((long double) log(initialScale) + (long double) ((long double) frame / (long double) (frames - 1) * log((long double) finalScale / (long double) initialScale)));
         //Internally parallelized
         mandelbrot(threshold, maxIterations, center, scale, resolution, output);
+        if (output == NULL) {
+            cout << "Memory could not be allocated inside of mandelbrot()" << endl;
+            free(colorCount);
+            delete[] colorMap;
+            free(file);
+            fclose(f);
+            return -1;
+        }
 
         uint8_t* img = new uint8_t[3 * canvas];
-
+    
 		if (img == NULL) {
-			free(img);
+            free(colorCount);
+            delete[] colorMap;
 			fclose(f);
 			free(file);
 			return 1;
@@ -80,7 +121,12 @@ int main(int argc, char* argv[]) {
         fprintf(f, "P6 %llu %llu 255\n", size, size);
         fwrite(img, sizeof(uint8_t), (3 * canvas), f);
         fclose(f);
+        delete[] output;
+        delete[] img;
+        free(file);
     }
+    delete[] colorMap;
+    free(colorCount);
 
     return 0;
 }
