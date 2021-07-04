@@ -9,17 +9,27 @@ Code is highly parallelized through the internal Mandelbrot set calculation, as 
 ```sh
 mkdir build
 cd build
+mkdir output
 cmake ..
 make
 ./mandelbrot 2 1750 0.37280535024 -0.2551419600000041 2 1e-15 500 50 output/partB defaultcolormap.txt
 ```
 
-Program argument upon compilation are:
+Program arguments upon compilation are:
 ```sh
-./mandelbrot <threshold> <maxiterations> <center_real> <center_imaginary> <initialscale> <finalscale> <framecount> <resolution> <output_folder> <colorfile>
+./mandelbrot <threshold> <maxIterations> <centerReal> <centerImaginary> <initialScale> <finalScale> <frameCount> <resolution> <outputFolder> <colorFile>
 ```
 
+A sample script:
+```sh
+./mandelbrot 2 1750 0.013438870532012129028364919004019686867528573314565492885548699 0.655614218769465062251320027664617466691295975864786403994151735 2 1e-18 620 50 output defaultcolormap.txt
 ```
-./mandelbrot 2 1750 0.013438870532012129028364919004019686867528573314565492885548699 0.655614218769465062251320027664617466691295975864786403994151735 2 1e-18 1000 100 output defaultcolormap.txt
+After compilation and execution, ffmpeg can be used to stitch frames together into an mp4 or gif as such:
+```sh
+ffmpeg -framerate 60 -i output/frame%05d.ppm output.mp4
+
 ```
-![](output/output.gif)
+
+<div align="center">
+    <img src="output/output.gif">
+</div>
